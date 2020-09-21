@@ -1,17 +1,20 @@
-export class BaseFunction extends Function
+/**
+ * WARN Potentialy allows memory leakage
+ */
+export abstract  class BaseFunction extends Function
 {
-    __call__:Function
-    constructor(fn:{(...arg:any[]):any})
+    abstract __call__:Function
+    
+    constructor()
     {
         
         var uniqueSymbol=Math.random().toString().slice(2)+Date.now()+Math.random().toString().slice(2)
         super("...args", `return global[Symbol.for('${uniqueSymbol}')].call(global[Symbol.for('${uniqueSymbol}')],...args)`)
         Object.assign(global,{[Symbol.for(uniqueSymbol)]:this})
-        this.__call__=fn
     }
     bind(thisArg:Object):Function 
     {
-        return new BaseFunction(this.__call__.bind(thisArg))
+        return new this.prototype(this.__call__.bind(thisArg))
     }
     call(thisArg:Object,...args:any[])
     {
